@@ -1,0 +1,47 @@
+# Example config file for MP2RAGE-utils
+# Leave fields empty if not needed
+
+# Required input parameters (full path must be provided)
+INV1: /scratch/rhaast/HPC_perfusion/results/mp2rage_correction/sub-02/anat/sub-02_acq-hiresMP2RAGE_inv-1_part-mag_run-01.nii.gz
+INV2: /scratch/rhaast/HPC_perfusion/results/mp2rage_correction/sub-02/anat/sub-02_acq-hiresMP2RAGE_inv-2_part-mag_run-01.nii.gz
+UNI: /scratch/rhaast/HPC_perfusion/results/mp2rage_correction/sub-02/anat/sub-02_acq-hiresMP2RAGE_run-01_UNI.nii.gz
+
+# Optional input parameters (full path must be provided)
+T1map: 
+sa2rageINV2: /scratch/rhaast/HPC_perfusion/results/mp2rage_correction/sub-02/fmap/sub-02_acq-SA2RAGE_inv-2_part-mag.nii
+sa2rageB1map: /scratch/rhaast/HPC_perfusion/results/mp2rage_correction/sub-02/fmap/sub-02_acq-SA2RAGE_b1map.nii
+tflB1map:
+
+# MP2RAGE parameters (from your protocol)
+B0: 7.0 # Field Strength
+TR: 6.0 # MP2RAGE TR
+TRFLASH: 9.8e-3 # GRE readout TR
+FlipDegrees: 6 7 # Flip angles
+TIs: 983e-3 2940e-3 # Inversion times
+SlicesPerSlab: 72
+PartialFourierInSlice: 0.75
+
+# Background removal options (1 = yes, 0 = no)
+DenoiseUNI: 1
+DenoiseT1map: 1
+DenoiseWeight: 10
+
+# Calculate additional maps (1 = yes, 0 = no)
+CalculateT1map: 1
+CalculateR1map: 1
+CalculateM0map: 1
+
+# B1+ correction (1 = yes, 0 = no), coregister requires SPM
+B1correct: 1
+Coregister: 1
+
+# If B1+ correcting with Sa2RAGE, give parameters (from your protocol)
+sa2rageTR: 2.4
+sa2rageTRFLASH: 2.2e-3
+sa2rageFlipDegrees: 4 10
+sa2rageTIs: 58e-3 1800e-3
+sa2rageBaseResolution: 128
+sa2ragePartialFourierInPE: 0.75 
+sa2rageiPATPhaseEncode: 2
+sa2rageRefLines: 24
+sa2rageAverageT1: 1.5

@@ -1,0 +1,51 @@
+participants_tsv: config/participants.txt
+
+data:
+  bids: /scratch/rhaast/MSTRCHT_BIDSify/bids/sub-{subject}
+  gradcorrect: /scratch/rhaast/MSTRCHT_BIDSify/gradcorrect/sub-{subject}
+  mp2rage_correction: results/mp2rage_correction/sub-{subject}
+  manual_segs: data/manual_segs/sub-{subject}/anat  
+
+mp2rage_data:
+  T1: 'acq-hiresMP2RAGE_run-avg_corrT1_upsamp_0p3_template_reg2TSE.nii.gz'
+  T1w: 'acq-hiresMP2RAGE_run-avg_corrUNI_clean_upsamp_0p3_template_reg2TSE.nii.gz'
+
+perfusion_data:
+  CBF: 'acq-ASL_run-all_moCorr_diCorr_CBFmap_FSL_reg2TSE.nii.gz'
+  PWI: 'acq-ASL_run-all_moCorr_diCorr_PWI_mean_reg2TSE.nii.gz'
+  M0: 'acq-ASL_run-all_moCorr_diCorr_M0_reg2TSE.nii.gz'
+  tSNR: 'acq-ASL_run-all_moCorr_diCorr_PWI_tSNR_reg2TSE.nii.gz'
+
+parameters:
+  - T1
+  - T1w
+  - T2w
+  - myelin
+  - TOF
+  - CBF
+  - PWI
+  - tSNR
+  - M0
+  - thickness
+  - gyrification
+  - curvature
+
+hippunfold_dir: /scratch/rhaast/HPC_hippunfold
+template: hippocampal_autotop/atlases/CITI/img_300umCoronalOblique_hemi-{hemi}.nii.gz
+
+fs_license: /project/6007967/akhanf/opt/freesurfer/.license
+
+autotop: /scratch/rhaast/HPC_hippunfold/run.py
+autotop_matlab: /scratch/rhaast/HPC_hippunfold/hippocampal_autotop_ali
+
+singularity_neuroglia: /project/6007967/akhanf/singularity/bids-apps/khanlab_neuroglia-core_latest.sif 
+singularity_prepdwi: /project/6050199/akhanf/singularity/bids-apps/khanlab_prepdwi_latest.sif
+singularity_freesurfer: /project/6050199/akhanf/singularity/bids-apps/pwighton_freesurfer_7.1.0.sif
+singularity_connectomewb: /project/6007967/software/transparentsingularity/connectome-workbench_1.4.1_20191117.simg/connectome-workbench_1.4.1_20191117.simg
+singularity_autotop: /home/akhanf/singularity/bids-apps/khanlab_hippocampal_autotop_bids_latest.sif
+singularity_fmriprep: /project/6050199/akhanf/singularity/bids-apps/poldracklab_fmriprep_20.2.0.sif
+singularity_braincharter: /scratch/rhaast/singularity/braincharter_v0.2.simg 
+
+matlab_bin: '/cvmfs/restricted.computecanada.ca/easybuild/software/2017/Core/matlab/2019b/bin/matlab'
+mlm_license_file: '/cvmfs/restricted.computecanada.ca/config/licenses/matlab/inst_uwo/graham.lic'
+java_home: '/cvmfs/soft.computecanada.ca/easybuild/software/2017/Core/java/1.8.0_192/'

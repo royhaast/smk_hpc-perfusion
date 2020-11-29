@@ -1,0 +1,9 @@
+.*
+!/.gitignore
+!/.gitattributes
+/results/*
+/data/*
+/logs/* 
+/jobs/*
+/resources/coeff_SC72CD.grad
+/scripts/skullstripping/spm12/*

@@ -1,0 +1,3 @@
+[submodule "workflow/scripts/mp2rage_utils"]
+	path = workflow/scripts/mp2rage_utils
+	url = https://github.com/srikash/MP2RAGE-utils.git
