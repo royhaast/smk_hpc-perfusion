@@ -1,3 +1,4 @@
+# Prepare TOF data for mapping on unfolded hippocampus
 rule warp_tof_to_corobl_crop:
     input:
         nii = 'results/tof/sub-{subject}/sub-{subject}_acq-TOF_run-avg_angio_reg2TSE_Warped.nii.gz',
@@ -25,7 +26,10 @@ rule lr_flip_tof:
 rule sample_tof_hippocampus:
     input:
         nii = 'results/maps/sub-{subject}/sub-{subject}_TOF_{H}.nii.gz',
-        midthickness = 'results/autotop-dev/work/autotop/sub-{subject}/sub-{subject}_hemi-{H}_space-CITI168corobl_desc-cropped_modality-segT2w_autotop/midthickness.nativecrop.surf.gii',
+        ribbon = rules.extract_gm_ribbon.output,
+        inner = rules.generate_midthickness_surf.input.inner,
+        midthickness = rules.generate_midthickness_surf.output,
+        outer = rules.generate_midthickness_surf.input.outer
     output: 'results/surface_maps/sub-{subject}/sub-{subject}_TOF_{H}.nativecrop.shape.gii'
     group: 'map_tof'
     singularity: config['singularity_connectomewb']
@@ -33,23 +37,9 @@ rule sample_tof_hippocampus:
     resources:
         mem_mb = 32000    
     shell:
-        "wb_command -volume-to-surface-mapping {input.nii} {input.midthickness} {output} -trilinear"
+        "wb_command -volume-to-surface-mapping {input.nii} {input.midthickness} {output} -ribbon-constrained {input.outer} {input.inner} -volume-roi {input.ribbon}"
 
-rule sample_tof_myelin_style:
-    input:
-        nii = 'results/maps/sub-{subject}/sub-{subject}_TOF_{H}.nii.gz',
-        ribbon = 'results/autotop-dev/work/autotop/sub-{subject}/sub-{subject}_hemi-{H}_space-CITI168corobl_desc-cropped_modality-segT2w_autotop/ribbon.nii.gz',
-        midthickness = 'results/autotop-dev/work/autotop/sub-{subject}/sub-{subject}_hemi-{H}_space-CITI168corobl_desc-cropped_modality-segT2w_autotop/midthickness.nativecrop.surf.gii',
-        thickness = 'results/surface_maps/sub-{subject}/sub-{subject}_thickness_{H}.nativecrop.shape.gii'
-    output: 'results/surface_maps/sub-{subject}/sub-{subject}_TOF_myelin-style_{H}.nativecrop.shape.gii'
-    group: 'map_tof'
-    singularity: config['singularity_connectomewb']
-    threads: 8
-    resources:
-        mem_mb = 32000
-    shell:
-        "wb_command -volume-to-surface-mapping {input.nii} {input.midthickness} {output} -myelin-style {input.ribbon} {input.thickness} 0.6"  
-
+# Prepare MP2RAGE data for reconstruction of vasculature
 rule tof_n4_correction:
     input: 'results/maps/sub-{subject}/sub-{subject}_TOF_{H}.nii.gz'
     output: 'results/vasculature/sub-{subject}/{H}/sub-{subject}_TOF_{H}_n4.nii.gz'
@@ -90,7 +80,7 @@ A template MeVisLab file (*.mlab) can be found in the 'resources' directory. Aft
 generating the vessel masks (i.e., '') run the 'tof_extract_vessels' rule
 
 """
-
+# Extract features from reconstructed vasculature
 # rule tof_binarize_segmentation:
 #     input: 'results/vasculature/sub-{subject}/sub-{subject}_TOF_n4_vessel_seg_1p0.nii.gz'
 #     output: 'results/vasculature/sub-{subject}/sub-{subject}_TOF_n4_vessel_seg_1p0_bin.nii.gz'

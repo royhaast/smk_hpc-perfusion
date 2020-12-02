@@ -29,6 +29,8 @@ parameters:
   - thickness
   - gyrification
   - curvature
+  - surfdist
+  - surfdisp
 
 hippunfold_dir: /scratch/rhaast/HPC_hippunfold
 template: hippocampal_autotop/atlases/CITI/img_300umCoronalOblique_hemi-{hemi}.nii.gz

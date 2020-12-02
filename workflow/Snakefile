@@ -18,8 +18,8 @@ wildcard_constraints:
 rule all:
     input:
         #expand('results/autotop-dev/results/sub-{subject}/anat/sub-{subject}_space-T1w_desc-subfields_modality-segT2w_template-CITI168_dseg.nii.gz', subject=subjects),
-        expand('results/vasculature/sub-{subject}/{H}/sub-{subject}_TOF_{H}_n4_stedi_centerdia_clean.nii.gz', subject=subjects, H=['Lflip','R'])
-        #expand('results/surface_maps/group/sub-group_{parameter}_LR_avg.nativecrop.shape.gii', parameter=config['parameters'])
+        #expand('results/vasculature/sub-{subject}/{H}/sub-{subject}_TOF_{H}_n4_stedi_centerdia_clean.nii.gz', subject=subjects, H=['Lflip','R']),
+        expand('results/surface_maps/group/sub-group_{parameter}_LR_avg.nativecrop.shape.gii', parameter=config['parameters']),
 
 def collect_input(wildcards):
     subject = '{wildcards.subject}'.format(wildcards=wildcards)
@@ -32,21 +32,21 @@ def collect_input(wildcards):
         't1w': join(deriv,'anat/sub-{s}_acq-MP2RAGE_run-01_corrUNI_clean.nii.gz'.format(s=subject))
         }
 
+# Common rules for mapping operations
+include: 'rules/common.smk'
+
 # Will do MP2RAGE B1+ correction, MPRAGEise, skullstripping, 
 # standard FreeSurfer and prepare for mapping onto hippocampus
 include: 'rules/mp2rage.smk'
 
-# Will prepare perfusion-related maps for mapping onto hippocampus 
-include: 'rules/perfusion.smk'
-
-# Will prepare TOF data for reconstruction of vasculature
-include: 'rules/tof.smk'
-
-# Unfold hippocampus using AutoTop
+# Unfold hippocampus
+include: 'rules/autotop.smk'
+include: 'rules/surfaces.smk'
 include: 'rules/t2w.smk'
+
+# Will prepare other data for mapping onto hippocampus 
+include: 'rules/perfusion.smk'
+include: 'rules/tof.smk'
 
 # Extract morphological features
 include: 'rules/morphology.smk'
-
-# Common rules for mapping operations
-include: 'rules/common.smk'
