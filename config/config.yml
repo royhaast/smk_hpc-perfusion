@@ -24,7 +24,7 @@ parameters:
   # - myelin
   # - TOF
   # - CBF
-  # - PWI
+  - PWI
   # - tSNR
   # - BAT
   # - M0
@@ -33,8 +33,8 @@ parameters:
   # - curvature
   # - surfdist
   # - surfdisp
-   - vesseldistance
-   - vesseldiameter
+  - vesseldistance
+  # - vesseldiameter
 
 hippunfold_dir: /scratch/rhaast/HPC_hippunfold
 template: hippocampal_autotop/atlases/CITI/img_300umCoronalOblique_hemi-{hemi}.nii.gz
