@@ -144,10 +144,10 @@ rule sample_t1_hippocampus:
     input:
         nii = 'results/maps/sub-{subject}/sub-{subject}_{mp2rage_parameter}_{H}.nii.gz',
         ribbon = rules.extract_gm_ribbon.output,
-        inner = 'results/autotop-dev/work/autotop/sub-{subject}/sub-{subject}_hemi-{H}_space-CITI168corobl_desc-cropped_modality-segT2w_autotop/midSurf_depth-1.surf.gii', #rules.generate_midthickness_surf.input.inner,
-        midthickness = 'results/autotop-dev/work/autotop/sub-{subject}/sub-{subject}_hemi-{H}_space-CITI168corobl_desc-cropped_modality-segT2w_autotop/midSurf_depth-mid.surf.gii',
-        outer = 'results/autotop-dev/work/autotop/sub-{subject}/sub-{subject}_hemi-{H}_space-CITI168corobl_desc-cropped_modality-segT2w_autotop/midSurf_depth-4.surf.gii' #rules.generate_midthickness_surf.input.outer
-    output: 'results/surface_maps/sub-{subject}/sub-{subject}_{mp2rage_parameter}_{H}.nativecrop.shape.gii'
+        inner = 'results/surface_warps/sub-{subject}/{H}/inner.native.surf.gii',
+        midthickness = 'results/surface_warps/sub-{subject}/{H}/midthickness.native.surf.gii',
+        outer = 'results/surface_warps/sub-{subject}/{H}/outer.native.surf.gii',
+    output: 'results/surface_maps/sub-{subject}/sub-{subject}_{mp2rage_parameter}_{H}.native.shape.gii'
     group: 'map_t1'
     singularity: config['singularity_connectomewb']
     threads: 8
@@ -160,9 +160,9 @@ rule sample_t1_hippocampus:
 # maps
 rule calculate_myelin_map:
     input:
-        t1w = 'results/surface_maps/sub-{subject}/sub-{subject}_T1w_{H}.nativecrop.shape.gii',
-        t2w = 'results/surface_maps/sub-{subject}/sub-{subject}_T2w_{H}.nativecrop.shape.gii'
-    output: 'results/surface_maps/sub-{subject}/sub-{subject}_myelin_{H}.nativecrop.shape.gii'    
+        t1w = 'results/surface_maps/sub-{subject}/sub-{subject}_T1w_{H}.native.shape.gii',
+        t2w = 'results/surface_maps/sub-{subject}/sub-{subject}_T2w_{H}.native.shape.gii'
+    output: 'results/surface_maps/sub-{subject}/sub-{subject}_myelin_{H}.native.shape.gii'    
     singularity: config['singularity_connectomewb']
     threads: 8
     resources:

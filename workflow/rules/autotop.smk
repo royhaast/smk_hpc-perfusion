@@ -7,7 +7,7 @@ rule combine_lr_manual_seg:
         lh = join(config['data']['manual_segs'],'sub-{subject}_hemi-L_hipp.nii.gz'),
         rh = join(config['data']['manual_segs'],'sub-{subject}_hemi-R_hipp.nii.gz'),
     output: join(config['data']['manual_segs'],'sub-{subject}_hemi-LR_hipp.nii.gz'),
-    group: 't2w'
+    group: 'manual_seg'
     run: 
         import numpy as np
         import nibabel as nib
@@ -22,7 +22,7 @@ rule combine_lr_manual_seg:
 rule relabel_lr_manual_seg:
     input: rules.combine_lr_manual_seg.output
     output: join(config['data']['manual_segs'],'sub-{subject}_hemi-LR_hipp_relabeled.nii.gz')
-    group: 't2w'    
+    group: 'manual_seg'    
     run:
         import numpy as np
         import nibabel as nib
@@ -48,7 +48,7 @@ rule get_xfm_manual_seg_to_t2w:
         xfm_ras = join(config['data']['manual_segs'],'sub-{subject}_acq-TSE_0p3_template0_from-dseg_to-refT2w_type-ras_xfm.txt'),
         xfm_itk = join(config['data']['manual_segs'],'sub-{subject}_acq-TSE_0p3_template0_from-dseg_to-refT2w_type-itk_xfm.txt'),
         warped = join(config['data']['manual_segs'],'sub-{subject}_acq-TSE_0p3_template0_space-refT2w.nii.gz')
-    group: 't2w'        
+    group: 'manual_seg'        
     singularity: config['singularity_prepdwi']
     threads: 8
     resources:
@@ -63,7 +63,7 @@ rule apply_xfm_manual_seg_to_t2w:
         ref = rules.get_xfm_manual_seg_to_t2w.input.flo,
         xfm = rules.get_xfm_manual_seg_to_t2w.output.xfm_itk
     output: join(config['data']['manual_segs'],'sub-{subject}_desc-manualseg.nii.gz')
-    group: 't2w'    
+    group: 'manual_seg'    
     singularity: config['singularity_prepdwi']
     threads: 8
     resources:
@@ -75,7 +75,7 @@ rule apply_xfm_manual_seg_to_t2w:
 rule smooth_labels:
     input: rules.apply_xfm_manual_seg_to_t2w.output
     output: join(config['data']['manual_segs'],'sub-{subject}_desc-manualseg_dseg.nii.gz')
-    group: 't2w'    
+    group: 'manual_seg'    
     singularity: config['singularity_prepdwi']
     threads: 8
     resources:
@@ -90,18 +90,21 @@ rule smooth_labels:
 rule autotop:
     input:
         bids = '/scratch/rhaast/MSTRCHT_BIDSify/gradcorrect',
-        dseg = rules.smooth_labels.output,
-        t1w = rules.copy_depadded.output.nii
-    output: 'results/autotop-dev/results/sub-{subject}/anat/sub-{subject}_space-T1w_desc-subfields_modality-segT2w_template-CITI168_dseg.nii.gz'
+        dseg = expand(join(config['data']['manual_segs'],'sub-{subject}_desc-manualseg_dseg.nii.gz'), subject=subjects), #rules.smooth_labels.output,
+        t1w = expand(join(config['data']['gradcorrect'],'anat/sub-{subject}_acq-MP2RAGEdepadded_run-01_T1w.nii.gz'), subject=subjects)
+    output:
+        dseg = expand('results/autotop-dev/results/sub-{subject}/anat/sub-{subject}_space-T1w_desc-subfields_modality-segT2w_template-CITI168_dseg.nii.gz', subject=subjects),
+        #Lflip = directory(expand('results/autotop-dev/work/autotop/sub-{subject}/sub-{subject}_hemi-Lflip_space-CITI168corobl_desc-cropped_modality-segT2w_autotop', subject=subjects)),
+        #R = directory(expand('results/autotop-dev/work/autotop/sub-{subject}/sub-{subject}_hemi-R_space-CITI168corobl_desc-cropped_modality-segT2w_autotop', subject=subjects))
     params:
         out_dir = 'results/autotop-dev',
         autotop = config['autotop'],
         autotop_opts = '--derivatives /scratch/rhaast/HPC_perfusion/data/manual_segs --modality segT2w --filter_T1w acquisition=MP2RAGEdepadded',
-        snakemake_opts = '--cores 8 --use-singularity -p &> logs/autotop/sub-{subject}.log'
+        snakemake_opts = '--cores 8 --use-singularity -p' #&> logs/autotop/sub-{subject}.log
     group: 'autotop'        
     threads: 8
     resources:
-        time = 120,
-        mem_mb = 32000
+        time = 600,
+        mem_mb = 64000
     shell:
-        "{params.autotop} {input.bids} {params.out_dir} participant --participant_label {wildcards.subject} {params.autotop_opts} {params.snakemake_opts}"
+        "{params.autotop} {input.bids} {params.out_dir} participant {params.autotop_opts} {params.snakemake_opts}" #--participant_label {wildcards.subject} 

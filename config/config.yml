@@ -11,26 +11,30 @@ mp2rage_data:
   T1w: 'acq-hiresMP2RAGE_run-avg_corrUNI_clean_upsamp_0p3_template_reg2TSE.nii.gz'
 
 perfusion_data:
-  CBF: 'acq-ASL_run-all_moCorr_diCorr_CBFmap_FSL_reg2TSE.nii.gz'
-  PWI: 'acq-ASL_run-all_moCorr_diCorr_PWI_mean_reg2TSE.nii.gz'
-  M0: 'acq-ASL_run-all_moCorr_diCorr_M0_reg2TSE.nii.gz'
-  tSNR: 'acq-ASL_run-all_moCorr_diCorr_PWI_tSNR_reg2TSE.nii.gz'
+  CBF: 'acq-ASL_run-all_moCorr_sDC_perfusion_calib'
+  PWI: 'acq-ASL_run-all_moCorr_sDC_PWI_Tmean'
+  tSNR: 'acq-ASL_run-all_moCorr_sDC_PWI_tSNR'
+  BAT: 'acq-ASL_run-all_moCorr_sDC_arrival'
+
 
 parameters:
-  - T1
-  - T1w
-  - T2w
-  - myelin
-  - TOF
-  - CBF
-  - PWI
-  - tSNR
-  - M0
-  - thickness
-  - gyrification
-  - curvature
-  - surfdist
-  - surfdisp
+  # - T1
+  # - T1w
+  # - T2w
+  # - myelin
+  # - TOF
+  # - CBF
+  # - PWI
+  # - tSNR
+  # - BAT
+  # - M0
+  # - thickness
+  # - gyrification
+  # - curvature
+  # - surfdist
+  # - surfdisp
+   - vesseldistance
+   - vesseldiameter
 
 hippunfold_dir: /scratch/rhaast/HPC_hippunfold
 template: hippocampal_autotop/atlases/CITI/img_300umCoronalOblique_hemi-{hemi}.nii.gz
@@ -38,13 +42,13 @@ template: hippocampal_autotop/atlases/CITI/img_300umCoronalOblique_hemi-{hemi}.n
 fs_license: /project/6007967/akhanf/opt/freesurfer/.license
 
 autotop: /scratch/rhaast/HPC_hippunfold/run.py
-autotop_matlab: /scratch/rhaast/HPC_hippunfold/hippocampal_autotop_ali
+autotop_matlab: /scratch/rhaast/HPC_hippunfold/hippocampal_autotop_ali_dev
 
 singularity_neuroglia: /project/6007967/akhanf/singularity/bids-apps/khanlab_neuroglia-core_latest.sif 
 singularity_prepdwi: /project/6050199/akhanf/singularity/bids-apps/khanlab_prepdwi_latest.sif
 singularity_freesurfer: /project/6050199/akhanf/singularity/bids-apps/pwighton_freesurfer_7.1.0.sif
 singularity_connectomewb: /project/6007967/software/transparentsingularity/connectome-workbench_1.4.1_20191117.simg/connectome-workbench_1.4.1_20191117.simg
-singularity_autotop: /home/akhanf/singularity/bids-apps/khanlab_hippocampal_autotop_bids_latest.sif
+singularity_autotop: /project/6050199/akhanf/singularity/bids-apps/khanlab_autotop_deps_latest.sif
 singularity_fmriprep: /project/6050199/akhanf/singularity/bids-apps/poldracklab_fmriprep_20.2.0.sif
 singularity_braincharter: /scratch/rhaast/singularity/braincharter_v0.2.simg 
 

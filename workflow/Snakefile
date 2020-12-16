@@ -1,25 +1,37 @@
 from os.path import join
 from glob import glob
 import pandas as pd
+import numpy as np
 
 configfile: 'config/config.yml'
 
 #load participants.tsv file (list of HCP subject IDs),
 df = pd.read_csv(config['participants_tsv'], dtype=str)
 subjects = df.participant_id.to_list() 
-#subjects = ['01','02','03','04','05','06','07','08','09','10','11']
+#subjects = ['01'] #,'01','02','03','04','05','06','07','08','09','10','11']
+
+#runs=[str(r).zfill(1) for r in range(1,9)]
 
 wildcard_constraints:
     subject="[0-9]+",
-    asl_parameter="CBF|PWI|M0|tSNR",
+    asl_parameter="CBF|PWI|BAT|tSNR",
     mp2rage_parameter="T1|T1w",
+    tof_parameter="vesseldistance|vesseldiameter",
+    surfname='white|pial|sphere.reg',
     H="Lflip|R"
 
 rule all:
     input:
         #expand('results/autotop-dev/results/sub-{subject}/anat/sub-{subject}_space-T1w_desc-subfields_modality-segT2w_template-CITI168_dseg.nii.gz', subject=subjects),
-        #expand('results/vasculature/sub-{subject}/{H}/sub-{subject}_TOF_{H}_n4_stedi_centerdia_clean.nii.gz', subject=subjects, H=['Lflip','R']),
-        expand('results/surface_maps/group/sub-group_{parameter}_LR_avg.nativecrop.shape.gii', parameter=config['parameters']),
+        #expand('results/surface_warps/sub-{subject}/{H}/{surface}.native.surf.gii', subject=subjects, H=['Lflip','R'], surface=['inner','midthickness','outer']),
+        #expand('results/average_hippocampus/{surface}_hemi-{H}.native.surf.gii', H=['Lflip','R'], surface=['inner','midthickness','outer']),
+        #expand('results/vasculature/sub-{subject}/{H}/vessel_seg_{scale}_bin_diameters_clean_dil.nii.gz', subject=subjects, H=['Lflip','R'], scale=['1p0','0p7','0p5']),
+        expand('results/surface_maps/group/sub-group_{parameter}_LR_avg.native.shape.gii', parameter=config['parameters']),
+        #expand('results/surface_maps/sub-{subject}/sub-{subject}_{asl_parameter}_{hemi}.32k_fs_LR.shape.gii', subject=subjects, hemi=['lh','rh'], asl_parameter=config['perfusion_data'].keys())#'CBF','PWI','tSNR','BAT']
+        #expand('results/hcp_mmp/sub-{subject}/{hemi}.hcp-mmp.nii.gz', subject=subjects, hemi=['lh','rh'])
+        #expand('results/perfusion_preprocessing/sub-{subject}/sub-{subject}_run-{run}_mean_Lflip.nii.gz', subject=subjects, H=['Lflip','R'], run=[str(r).zfill(2) for r in range(1,9)])
+        #expand('results/maps/sub-{subject}/sub-{subject}_PWI_means_Lflip.nii.gz', subject=subjects, H=['Lflip','R'])
+        #expand('results/surface_maps/group/sub-group_PWI_means_LR_avg.native.shape.gii'),
 
 def collect_input(wildcards):
     subject = '{wildcards.subject}'.format(wildcards=wildcards)
@@ -38,6 +50,7 @@ include: 'rules/common.smk'
 # Will do MP2RAGE B1+ correction, MPRAGEise, skullstripping, 
 # standard FreeSurfer and prepare for mapping onto hippocampus
 include: 'rules/mp2rage.smk'
+include: 'rules/hcp-mmp.smk'
 
 # Unfold hippocampus
 include: 'rules/autotop.smk'

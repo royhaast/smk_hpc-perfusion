@@ -27,10 +27,10 @@ rule sample_tof_hippocampus:
     input:
         nii = 'results/maps/sub-{subject}/sub-{subject}_TOF_{H}.nii.gz',
         ribbon = rules.extract_gm_ribbon.output,
-        inner = rules.generate_midthickness_surf.input.inner,
-        midthickness = rules.generate_midthickness_surf.output,
-        outer = rules.generate_midthickness_surf.input.outer
-    output: 'results/surface_maps/sub-{subject}/sub-{subject}_TOF_{H}.nativecrop.shape.gii'
+        inner = 'results/surface_warps/sub-{subject}/{H}/inner.native.surf.gii',
+        midthickness = 'results/surface_warps/sub-{subject}/{H}/midthickness.native.surf.gii',
+        outer = 'results/surface_warps/sub-{subject}/{H}/outer.native.surf.gii',
+    output: 'results/surface_maps/sub-{subject}/sub-{subject}_TOF_{H}.native.shape.gii'
     group: 'map_tof'
     singularity: config['singularity_connectomewb']
     threads: 8
@@ -82,16 +82,16 @@ generating the vessel masks (i.e., '') run the 'tof_extract_vessels' rule
 """
 # Extract features from reconstructed vasculature
 # rule tof_binarize_segmentation:
-#     input: 'results/vasculature/sub-{subject}/sub-{subject}_TOF_n4_vessel_seg_1p0.nii.gz'
-#     output: 'results/vasculature/sub-{subject}/sub-{subject}_TOF_n4_vessel_seg_1p0_bin.nii.gz'
-#     group: 'map_tof'
+#     input: 'results/vasculature/sub-{subject}/{H}/vessel_seg_0p7.nii.gz'
+#     output: 'results/vasculature/sub-{subject}/{H}/sub-{subject}_TOF_n4_vessel_seg_0p7_bin.nii.gz'
+#     group: 'map_vasculature'
 #     singularity: config['singularity_prepdwi']
 #     shell:
 #         "fslmaths {input} -bin {output}"       
 
 rule tof_extract_diameters:
-    input: 'results/vasculature/sub-{subject}/{H}/sub-{subject}_TOF_{H}_n4_vessel_seg_0p7.nii.gz'
-    output: 'results/vasculature/sub-{subject}/{H}/sub-{subject}_TOF_{H}_n4_vessel_seg_1p0_diameters_clean_dil.nii.gz'
+    input: 'results/vasculature/sub-{subject}/{H}/vessel_seg_{scale}.nii.gz'
+    output: 'results/vasculature/sub-{subject}/{H}/vessel_seg_{scale}_bin_diameters_clean_dil.nii.gz'
     group: 'map_vasculature'
     singularity: config['singularity_braincharter']   
     threads: 8
@@ -99,3 +99,34 @@ rule tof_extract_diameters:
         mem_mb = 32000     
     shell:
         "bash scripts/tof_extract_diameters.sh $(realpath {input}) 'nii.gz'"
+
+rule tof_angiograms:
+    input:
+        ribbon = rules.extract_gm_ribbon.output,
+        vessels = 'results/vasculature/sub-{subject}/{H}/vessel_seg_0p7_bin.nii.gz',
+        diameter = 'results/vasculature/sub-{subject}/{H}/vessel_seg_0p7_bin_diameters_clean_dil.nii.gz'
+    output:
+        distance = 'results/maps/sub-{subject}/sub-{subject}_vesseldistance_{H}.nii.gz',
+        diameter = 'results/maps/sub-{subject}/sub-{subject}_vesseldiameter_{H}.nii.gz',
+        edges = 'results/vasculature/sub-{subject}/{H}/vessel_seg_0p7_bin_edges.nii.gz'
+    group: 'map_vasculature'        
+    threads: 8
+    resources:
+        mem_mb = 32000          
+    script: "../scripts/tof_angiograms.py"
+
+rule sample_angiograms_hippocampus:
+    input:
+        nii = 'results/maps/sub-{subject}/sub-{subject}_{tof_parameter}_{H}.nii.gz',
+        ribbon = rules.extract_gm_ribbon.output,
+        inner = 'results/surface_warps/sub-{subject}/{H}/inner.native.surf.gii',
+        midthickness = 'results/surface_warps/sub-{subject}/{H}/midthickness.native.surf.gii',
+        outer = 'results/surface_warps/sub-{subject}/{H}/outer.native.surf.gii',
+    output: 'results/surface_maps/sub-{subject}/sub-{subject}_{tof_parameter}_{H}.native.shape.gii'
+    group: 'map_vasculature'
+    singularity: config['singularity_connectomewb']
+    threads: 8
+    resources:
+        mem_mb = 32000    
+    shell:
+        "wb_command -volume-to-surface-mapping {input.nii} {input.midthickness} {output} -ribbon-constrained {input.outer} {input.inner} -volume-roi {input.ribbon}"

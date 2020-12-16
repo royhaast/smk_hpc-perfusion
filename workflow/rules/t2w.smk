@@ -27,10 +27,10 @@ rule sample_t2w_hippocampus:
     input:
         nii = 'results/maps/sub-{subject}/sub-{subject}_T2w_{H}.nii.gz',
         ribbon = rules.extract_gm_ribbon.output,
-        inner = rules.generate_midthickness_surf.input.inner,
-        midthickness = rules.generate_midthickness_surf.output, #'results/autotop-dev/work/autotop/sub-{subject}/sub-{subject}_hemi-{H}_space-CITI168corobl_desc-cropped_modality-segT2w_autotop/midthickness.nativecrop.surf.gii',
-        outer = rules.generate_midthickness_surf.input.outer
-    output: 'results/surface_maps/sub-{subject}/sub-{subject}_T2w_{H}.nativecrop.shape.gii'
+        inner = 'results/surface_warps/sub-{subject}/{H}/inner.native.surf.gii',
+        midthickness = 'results/surface_warps/sub-{subject}/{H}/midthickness.native.surf.gii',
+        outer = 'results/surface_warps/sub-{subject}/{H}/outer.native.surf.gii',
+    output: 'results/surface_maps/sub-{subject}/sub-{subject}_T2w_{H}.native.shape.gii'
     group: 'map_t2w'
     singularity: config['singularity_connectomewb']
     threads: 8
