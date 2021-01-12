@@ -1,7 +1,10 @@
 .*
 !/.gitignore
 !/.gitattributes
-/notebooks/*
+/notebooks/__pycache__
+/notebooks/utilities.py
+/notebooks/ismrm_figures.ipynb
+/notebooks/get_min_distance.ipynb
 /visualization/*
 /results/*
 /data/*
